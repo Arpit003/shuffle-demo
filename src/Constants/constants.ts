@@ -16,7 +16,7 @@ export const pointAnimation: Function = (
   element.dataset.animationRunning = Boolean(true).toString();
 
   pointManipulation(
-    Math.abs(startNumber - endNumber) > 200 ? endNumber - 200 : startNumber,
+    Math.abs(startNumber - endNumber) > 150 ? endNumber - 150 : startNumber,
     endNumber,
     element,
     speed

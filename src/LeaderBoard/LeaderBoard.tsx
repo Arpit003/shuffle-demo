@@ -10,8 +10,16 @@ import {
 
 const FIRST_THREE_ON_BOARD_STYLE_CLASS: string[] = ["first", "second", "third"];
 
+let visibilityChange: string = "";
+if (typeof document.hidden !== "undefined") {
+  visibilityChange = "visibilitychange";
+}
+
 const LeaderBoard: React.FC = () => {
   const [data, setData] = useState<DataItem[]>([]);
+  const [leaderBoardInterval, setLeaderBoardInterval] = useState<
+    NodeJS.Timeout | number
+  >(0);
 
   const doShuffle = useCallback(() => {
     let newData: DataItem[] = [...LEADER_BOARD_DATA];
@@ -36,9 +44,10 @@ const LeaderBoard: React.FC = () => {
   }, []);
 
   const updateBoard = useCallback(() => {
-    setInterval(() => {
+    let timeRef = setInterval(() => {
       doShuffle();
     }, 1000);
+    setLeaderBoardInterval(timeRef);
   }, [doShuffle]);
 
   const setInitSortedPoints: Function = useCallback((boardData: DataItem[]) => {
@@ -58,6 +67,19 @@ const LeaderBoard: React.FC = () => {
   useEffect(() => {
     setInitSortedPoints(LEADER_BOARD_DATA);
   }, [setInitSortedPoints]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document?.hidden) return clearInterval(leaderBoardInterval);
+      updateBoard();
+    };
+
+    document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
+    return () => {
+      document.removeEventListener(visibilityChange, handleVisibilityChange);
+    };
+  }, [leaderBoardInterval, updateBoard]);
 
   return (
     <LeaderBoardWrapper>
